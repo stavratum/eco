@@ -5,6 +5,7 @@ import (
 )
 
 type Session struct {
+	Guilds   map[string]*Guild
 	Handlers []Handler
 
 	*discordgo.Session
@@ -12,6 +13,7 @@ type Session struct {
 
 func New(token string) (s *Session, err error) {
 	s = &Session{
+		Guilds:   map[string]*Guild{},
 		Handlers: []Handler{},
 	}
 

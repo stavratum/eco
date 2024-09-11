@@ -1,11 +1,8 @@
 module eco
 
-go 1.22.6
+go 1.23.1
 
-require (
-	github.com/bwmarrin/discordgo v0.28.1
-	github.com/yuin/gopher-lua v1.1.1
-)
+require github.com/bwmarrin/discordgo v0.28.1
 
 require (
 	github.com/gorilla/websocket v1.4.2 // indirect

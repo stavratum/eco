@@ -49,10 +49,14 @@ func main() {
 	}
 
 	r := handler.NewRouter()
+	s.AddHandler(r.Handler)
+
 	r.AddCommand(commands.Help)
 	r.AddCommand(commands.New)
 
-	s.AddHandler(r.Handler)
+	s.AddHandler(handler.OnTemp)
+	r.AddCommand(commands.Temp)
+
 	s.AddHandler(handler.OnReady)
 
 	err = s.Open()

@@ -34,7 +34,7 @@ var New = &handler.Command{
 			s.State.ChannelAdd(channel)
 		}
 
-		_, err = s.GuildChannelCreateComplex(m.GuildID, discordgo.GuildChannelCreateData{
+		nchannel, err := s.GuildChannelCreateComplex(m.GuildID, discordgo.GuildChannelCreateData{
 			Name:                 channel.Name,
 			Type:                 channel.Type,
 			Topic:                channel.Topic,
@@ -52,8 +52,21 @@ var New = &handler.Command{
 			return
 		}
 
+		guild, ok := s.Guilds[m.GuildID]
+		if !ok {
+			return
+		}
+
+		_, ok = guild.TempChannels[m.ChannelID]
+		if !ok {
+			return
+		}
+
+		guild.TempChannels[nchannel.ID] = true
+
 		if _, err = s.ChannelDelete(m.ChannelID); err != nil {
 			s.ChannelMessageSendReply(m.ChannelID, err.Error(), m.Reference())
+			return
 		}
 	},
 }
