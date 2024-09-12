@@ -52,17 +52,11 @@ var New = &handler.Command{
 			return
 		}
 
-		guild, ok := s.Guilds[m.GuildID]
-		if !ok {
-			return
+		if guild, ok := s.Guilds[m.GuildID]; ok {
+			if _, ok = guild.TempChannels[m.ChannelID]; ok {
+				guild.TempChannels[nchannel.ID] = true
+			}
 		}
-
-		_, ok = guild.TempChannels[m.ChannelID]
-		if !ok {
-			return
-		}
-
-		guild.TempChannels[nchannel.ID] = true
 
 		if _, err = s.ChannelDelete(m.ChannelID); err != nil {
 			s.ChannelMessageSendReply(m.ChannelID, err.Error(), m.Reference())
