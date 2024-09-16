@@ -3,6 +3,7 @@ package commands
 import (
 	"eco/eco"
 	"eco/handler"
+	"log"
 
 	"github.com/bwmarrin/discordgo"
 )
@@ -24,21 +25,64 @@ var Temp = &handler.Command{
 			return
 		}
 
-		guild, ok := s.Guilds[m.GuildID]
+		channel, ok := handler.TempChannels[m.ChannelID]
 		if !ok {
-			guild = eco.NewGuild()
-			s.Guilds[m.GuildID] = guild
+			channel = handler.NewTempChannel()
+			handler.TempChannels[m.ChannelID] = channel
+
+			s.ChannelMessageSendReply(m.ChannelID, "Temp channel type: Manual.", m.Reference())
+			return
 		}
 
-		_, ok = guild.TempChannels[m.ChannelID]
-		if !ok {
-			guild.TempChannels[m.ChannelID] = true
+		channel.Type++
+		content := "Temp channel type: Everything."
 
-			s.ChannelMessageSendReply(m.ChannelID, "Channel was set to be temporary.", m.Reference())
-		} else {
-			delete(guild.TempChannels, m.ChannelID)
+		switch channel.Type {
+		case handler.Everything:
+		case handler.EverythingNSFW:
+			content = "Temp channel type: Everything (NSFW)."
+		case 3:
+			delete(handler.TempChannels, m.ChannelID)
+			content = "Channel is not temp anymore."
+		}
 
-			s.ChannelMessageSendReply(m.ChannelID, "Channel was set to not be temporary anymore.", m.Reference())
+		_, err = s.ChannelMessageSendComplex(m.ChannelID, &discordgo.MessageSend{
+			Content:   content,
+			Reference: m.Reference(),
+			Components: []discordgo.MessageComponent{
+				discordgo.ActionsRow{
+					Components: []discordgo.MessageComponent{
+						discordgo.Button{
+							// Label is what the user will see on the button.
+							Label: "Yes ($999.99)",
+							// Style provides coloring of the button. There are not so many styles tho.
+							Style: discordgo.SuccessButton,
+							// Disabled allows bot to disable some buttons for users.
+							Disabled: false,
+							// CustomID is a thing telling Discord which data to send when this button will be pressed.
+							CustomID: "fd_yes",
+
+							Emoji: &discordgo.ComponentEmoji{
+								Name: "🤑",
+							},
+						},
+						discordgo.Button{
+							Label:    "No ($299.99)",
+							Style:    discordgo.DangerButton,
+							Disabled: false,
+							CustomID: "fd_no",
+
+							Emoji: &discordgo.ComponentEmoji{
+								Name: "😡",
+							},
+						},
+					},
+				},
+			},
+		})
+
+		if err != nil {
+			log.Println(err.Error())
 		}
 	},
 }
