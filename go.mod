@@ -1,4 +1,4 @@
-module eco
+module github.com/stavratum/eco
 
 go 1.23.1
 

@@ -1,40 +1,40 @@
 package commands
 
 import (
-	"eco/eco"
-	"eco/handler"
-
 	"github.com/bwmarrin/discordgo"
+	"github.com/stavratum/eco/handler/router"
 )
 
-var New = &handler.Command{
+var New = &router.Command{
 	Name:        "new",
 	Usage:       "new",
 	Description: "Recreates this channel with the same data as before.",
 
-	Handler: func(s *eco.Session, m *discordgo.MessageCreate) {
-		permissions, err := s.UserChannelPermissions(m.Author.ID, m.ChannelID)
+	Aliases: []string{"new"},
+
+	Handler: func(ctx *router.Context) {
+		permissions, err := ctx.UserChannelPermissions(ctx.Author.ID, ctx.ChannelID)
 		if err != nil {
-			s.ChannelMessageSendReply(m.ChannelID, err.Error(), m.Reference())
+			ctx.ChannelMessageSendReply(ctx.ChannelID, err.Error(), ctx.Reference())
 			return
 		}
 
 		if permissions&discordgo.PermissionManageChannels == 0 {
-			s.ChannelMessageSendReply(m.ChannelID, "Not enough permissions.", m.Reference())
+			ctx.ChannelMessageSendReply(ctx.ChannelID, "Not enough permissions.", ctx.Reference())
 			return
 		}
 
-		channel, err := s.State.Channel(m.ChannelID)
+		channel, err := ctx.State.Channel(ctx.ChannelID)
 		if err != nil {
-			if channel, err = s.Channel(m.ChannelID); err != nil {
-				s.ChannelMessageSendReply(m.ChannelID, err.Error(), m.Reference())
+			if channel, err = ctx.Channel(ctx.ChannelID); err != nil {
+				ctx.ChannelMessageSendReply(ctx.ChannelID, err.Error(), ctx.Reference())
 				return
 			}
 
-			s.State.ChannelAdd(channel)
+			ctx.State.ChannelAdd(channel)
 		}
 
-		_, err = s.GuildChannelCreateComplex(m.GuildID, discordgo.GuildChannelCreateData{
+		_, err = ctx.GuildChannelCreateComplex(ctx.GuildID, discordgo.GuildChannelCreateData{
 			Name:                 channel.Name,
 			Type:                 channel.Type,
 			Topic:                channel.Topic,
@@ -48,12 +48,12 @@ var New = &handler.Command{
 		})
 
 		if err != nil {
-			s.ChannelMessageSendReply(m.ChannelID, err.Error(), m.Reference())
+			ctx.ChannelMessageSendReply(ctx.ChannelID, err.Error(), ctx.Reference())
 			return
 		}
 
-		if _, err = s.ChannelDelete(m.ChannelID); err != nil {
-			s.ChannelMessageSendReply(m.ChannelID, err.Error(), m.Reference())
+		if _, err = ctx.ChannelDelete(ctx.ChannelID); err != nil {
+			ctx.ChannelMessageSendReply(ctx.ChannelID, err.Error(), ctx.Reference())
 			return
 		}
 	},

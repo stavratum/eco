@@ -1,14 +1,16 @@
 package main
 
 import (
-	"eco/commands"
-	"eco/eco"
-	"eco/handler"
 	"flag"
 	"fmt"
 	"log"
 	"os"
 	"strings"
+
+	"github.com/stavratum/eco/handler"
+	"github.com/stavratum/eco/handler/router"
+
+	"github.com/stavratum/eco/commands"
 )
 
 var Token string
@@ -42,13 +44,13 @@ func main() {
 		return
 	}
 
-	s, err := eco.New(Token)
+	s, err := New(Token)
 	if err != nil {
 		panic(err.Error())
 		return
 	}
 
-	r := handler.NewRouter()
+	r := router.New()
 	s.AddHandler(r.Handler)
 
 	r.AddCommand(commands.Help)

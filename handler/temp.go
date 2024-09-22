@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"eco/eco"
 	"time"
 
 	"github.com/bwmarrin/discordgo"
@@ -74,7 +73,7 @@ var TempTicker = time.NewTicker(time.Minute) // update every minute
 var TempInit = false
 
 // ready controls the temp channels and messages
-func ready(s *eco.Session) {
+func ready(s *discordgo.Session) {
 	if TempInit {
 		return
 	}
@@ -159,7 +158,7 @@ func ready(s *eco.Session) {
 	}
 }
 
-func OnTemp(s *eco.Session, i interface{}) {
+func OnTemp(s *discordgo.Session, i interface{}) {
 	switch e := i.(type) {
 	case *discordgo.Ready:
 		ready(s)
